@@ -146,7 +146,7 @@ export interface SearchResponse {
 
 export async function searchRecords(
   collection: string,
-  body: { q: string; mode?: string; ranking?: string; highlight?: boolean; limit?: number },
+  body: { q: string; mode?: string; ranking?: string; highlight?: boolean; limit?: number; includeCold?: boolean },
 ): Promise<SearchResponse> {
   const res = await obeliskFetch(`/xrpc/${collection}.searchRecords`, {
     method: "POST",
@@ -211,6 +211,8 @@ export function aggregate(params: {
 // list queries
 export const getBlockedDids = () => svcQuery<{ blockedDids: BlockedDid[] }>("getBlockedDids");
 export const getBlockedPdses = () => svcQuery<{ blockedPdses: BlockedPds[] }>("getBlockedPdses");
+export const getColdDids = () => svcQuery<{ coldDids: ColdDid[] }>("getColdDids");
+export const getColdPdses = () => svcQuery<{ coldPdses: ColdPds[] }>("getColdPdses");
 export const getWebhooks = () => svcQuery<{ webhooks: Webhook[] }>("getWebhooks");
 export const getAudiences = () => svcQuery<{ audiences: Audience[] }>("getAudiences");
 export const getAudienceMembers = (name: string, limit = 50) =>
@@ -242,6 +244,10 @@ export const addBlockedDid = (b: { did: string; note?: string; purge?: boolean; 
 export const removeBlockedDid = (did: string) => svcProcedure("removeBlockedDid", { did });
 export const addBlockedPds = (b: { pattern: string; note?: string }) => svcProcedure("addBlockedPds", b);
 export const removeBlockedPds = (pattern: string) => svcProcedure("removeBlockedPds", { pattern });
+export const addColdDid = (b: { did: string; note?: string }) => svcProcedure("addColdDid", b);
+export const removeColdDid = (did: string) => svcProcedure("removeColdDid", { did });
+export const addColdPds = (b: { pattern: string; note?: string }) => svcProcedure("addColdPds", b);
+export const removeColdPds = (pattern: string) => svcProcedure("removeColdPds", { pattern });
 export const deleteWebhook = (id: number) => svcProcedure("deleteWebhook", { id });
 export const testWebhook = (id: number) => svcProcedure("testWebhook", { id });
 export const deleteAudience = (name: string) => svcProcedure("deleteAudience", { name });
@@ -254,6 +260,16 @@ export interface BlockedDid {
   addedAt: string;
 }
 export interface BlockedPds {
+  pattern: string;
+  note?: string | null;
+  addedAt: string;
+}
+export interface ColdDid {
+  did: string;
+  note?: string | null;
+  addedAt: string;
+}
+export interface ColdPds {
   pattern: string;
   note?: string | null;
   addedAt: string;

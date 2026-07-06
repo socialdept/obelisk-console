@@ -50,6 +50,7 @@ function RecordsSearch({ collections }: { collections: string[] }) {
   );
   const [q, setQ] = useState("");
   const [mode, setMode] = useState("fts");
+  const [showCold, setShowCold] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [records, setRecords] = useState<SearchRecord[] | null>(null);
@@ -63,7 +64,7 @@ function RecordsSearch({ collections }: { collections: string[] }) {
     const res = await fetch("/api/search", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ collection: collection.trim(), q: q.trim(), mode, limit: 25 }),
+      body: JSON.stringify({ collection: collection.trim(), q: q.trim(), mode, includeCold: showCold, limit: 25 }),
     });
     setBusy(false);
     if (!res.ok) {
@@ -105,6 +106,13 @@ function RecordsSearch({ collections }: { collections: string[] }) {
         <Button type="submit" disabled={busy} className="gap-1.5">
           {busy ? <Loader2 className="size-4 animate-spin" /> : <Search className="size-4" />} Search
         </Button>
+        <label
+          className="text-muted-foreground flex h-9 items-center gap-1.5 text-sm"
+          title="Cold-storage records are hidden by default (semantic mode never returns them)."
+        >
+          <input type="checkbox" checked={showCold} onChange={(e) => setShowCold(e.target.checked)} className="accent-primary" />
+          show cold
+        </label>
       </form>
 
       {error && <p className="text-destructive text-sm">{error}</p>}

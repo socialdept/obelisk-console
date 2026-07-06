@@ -50,6 +50,35 @@ export async function unblockPdsAction(pattern: string) {
   revalidatePath("/manage/blocklists");
 }
 
+// ── cold storage ─────────────────────────────────────────────────────
+export async function coldDidAction(formData: FormData) {
+  await guard();
+  const input = String(formData.get("did") ?? "").trim();
+  if (!input) return;
+  await obk.addColdDid({ did: await toDid(input), note: String(formData.get("note") ?? "").trim() || undefined });
+  revalidatePath("/manage/cold");
+}
+
+export async function unColdDidAction(did: string) {
+  await guard();
+  await obk.removeColdDid(did);
+  revalidatePath("/manage/cold");
+}
+
+export async function coldPdsAction(formData: FormData) {
+  await guard();
+  const pattern = String(formData.get("pattern") ?? "").trim();
+  if (!pattern) return;
+  await obk.addColdPds({ pattern, note: String(formData.get("note") ?? "").trim() || undefined });
+  revalidatePath("/manage/cold");
+}
+
+export async function unColdPdsAction(pattern: string) {
+  await guard();
+  await obk.removeColdPds(pattern);
+  revalidatePath("/manage/cold");
+}
+
 // ── webhooks ─────────────────────────────────────────────────────────
 export async function testWebhookAction(id: number) {
   await guard();
