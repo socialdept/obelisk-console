@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 
 const LINKS = [
   { href: "/", label: "Overview" },
+  { href: "/search", label: "Search" },
+  { href: "/stats", label: "Stats" },
   { href: "/manage/blocklists", label: "Blocklists" },
   { href: "/manage/watched", label: "Watched" },
   { href: "/manage/webhooks", label: "Webhooks" },

@@ -124,6 +124,65 @@ export function getBackfillStatus() {
   return svcQuery<{ collections: BackfillCollection[] }>("getBackfillStatus");
 }
 
+// ── record search / lookup (collection plane) ───────────────────────
+
+export interface SearchRecord {
+  uri: string;
+  cid: string | null;
+  did: string;
+  collection: string;
+  value: unknown;
+  indexedAt: string;
+  rank?: number;
+  score?: number;
+  distance?: number;
+  highlight?: string;
+}
+
+export interface SearchResponse {
+  records: SearchRecord[];
+  facets?: Record<string, { value: string; count: number }[]>;
+}
+
+export async function searchRecords(
+  collection: string,
+  body: { q: string; mode?: string; ranking?: string; highlight?: boolean; limit?: number },
+): Promise<SearchResponse> {
+  const res = await obeliskFetch(`/xrpc/${collection}.searchRecords`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new ObeliskError(res.status, await errText(res));
+  return res.json() as Promise<SearchResponse>;
+}
+
+/** Parse the collection NSID out of an `at://did/collection/rkey` URI. */
+export function collectionFromUri(uri: string): string | null {
+  const m = uri.match(/^at:\/\/[^/]+\/([^/]+)\/[^/]+$/);
+  return m ? m[1]! : null;
+}
+
+export async function getRecordByUri(uri: string): Promise<SearchRecord> {
+  const collection = collectionFromUri(uri);
+  if (!collection) throw new ObeliskError(400, "not a record AT URI (at://did/collection/rkey)");
+  const res = await obeliskFetch(`/xrpc/${collection}.getRecord?uri=${encodeURIComponent(uri)}`);
+  if (!res.ok) throw new ObeliskError(res.status, await errText(res));
+  return res.json() as Promise<SearchRecord>;
+}
+
+export interface TypeEntry {
+  nsid?: string;
+  type?: string;
+  count: number;
+  [k: string]: unknown;
+}
+export const getTypes = (params?: { collection?: string; path?: string }) =>
+  svcQuery<{ types: TypeEntry[] }>("getTypes", params);
+
+export const createAudience = (name: string, definition: unknown) =>
+  svcProcedure("createAudience", { name, definition });
+
 export interface AggregateGroup {
   key: Record<string, string>;
   count: number;
