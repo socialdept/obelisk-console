@@ -1,9 +1,11 @@
+import { DidIdentity, DidLinks } from "@/components/did-identity";
 import { Empty, ErrorNote, NeedsToken, PageHeader } from "@/components/manage-ui";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getProfiles, type Profile } from "@/lib/bsky";
 import { getWatchedDids, hasToken, type WatchedDid } from "@/lib/obelisk";
 import { unwatchDidAction, watchDidAction } from "../actions";
 
@@ -21,9 +23,11 @@ export default async function WatchedPage() {
   }
 
   let watched: WatchedDid[] = [];
+  let profiles: Record<string, Profile> = {};
   let error: string | null = null;
   try {
     watched = (await getWatchedDids()).watchedDids;
+    profiles = await getProfiles(watched.map((w) => w.did));
   } catch (e) {
     error = (e as Error).message;
   }
@@ -50,16 +54,18 @@ export default async function WatchedPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>DID</TableHead>
+                  <TableHead>Repo</TableHead>
                   <TableHead>Note</TableHead>
                   <TableHead>Snapshot</TableHead>
-                  <TableHead className="w-24 text-right">Action</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {watched.map((w) => (
                   <TableRow key={w.did}>
-                    <TableCell className="font-mono text-xs">{w.did}</TableCell>
+                    <TableCell>
+                      <DidIdentity did={w.did} profile={profiles[w.did]} />
+                    </TableCell>
                     <TableCell className="text-muted-foreground text-sm">{w.note ?? "—"}</TableCell>
                     <TableCell>
                       {w.snapshotAt ? (
@@ -68,12 +74,15 @@ export default async function WatchedPage() {
                         <Badge variant="outline" className="text-muted-foreground text-xs">pending</Badge>
                       )}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <form action={unwatchDidAction.bind(null, w.did)}>
-                        <Button type="submit" size="sm" variant="ghost" className="text-muted-foreground">
-                          Remove
-                        </Button>
-                      </form>
+                    <TableCell>
+                      <div className="flex items-center justify-end gap-1">
+                        <DidLinks did={w.did} handle={profiles[w.did]?.handle} />
+                        <form action={unwatchDidAction.bind(null, w.did)}>
+                          <Button type="submit" size="sm" variant="ghost" className="text-destructive">
+                            Remove
+                          </Button>
+                        </form>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

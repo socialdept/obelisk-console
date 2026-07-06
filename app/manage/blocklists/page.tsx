@@ -1,8 +1,10 @@
+import { DidIdentity, DidLinks } from "@/components/did-identity";
 import { Empty, ErrorNote, NeedsToken, PageHeader } from "@/components/manage-ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getProfiles, type Profile } from "@/lib/bsky";
 import {
   getBlockedDids,
   getBlockedPdses,
@@ -28,12 +30,14 @@ export default async function BlocklistsPage() {
 
   let dids: BlockedDid[] = [];
   let pdses: BlockedPds[] = [];
+  let profiles: Record<string, Profile> = {};
   let error: string | null = null;
   try {
     [dids, pdses] = await Promise.all([
       getBlockedDids().then((r) => r.blockedDids),
       getBlockedPdses().then((r) => r.blockedPdses),
     ]);
+    profiles = await getProfiles(dids.map((d) => d.did));
   } catch (e) {
     error = (e as Error).message;
   }
@@ -68,22 +72,27 @@ export default async function BlocklistsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>DID</TableHead>
+                  <TableHead>Repo</TableHead>
                   <TableHead>Note</TableHead>
-                  <TableHead className="w-24 text-right">Action</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {dids.map((d) => (
                   <TableRow key={d.did}>
-                    <TableCell className="font-mono text-xs">{d.did}</TableCell>
+                    <TableCell>
+                      <DidIdentity did={d.did} profile={profiles[d.did]} />
+                    </TableCell>
                     <TableCell className="text-muted-foreground text-sm">{d.note ?? "—"}</TableCell>
-                    <TableCell className="text-right">
-                      <form action={unblockDidAction.bind(null, d.did)}>
-                        <Button type="submit" size="sm" variant="ghost" className="text-muted-foreground">
-                          Remove
-                        </Button>
-                      </form>
+                    <TableCell>
+                      <div className="flex items-center justify-end gap-1">
+                        <DidLinks did={d.did} handle={profiles[d.did]?.handle} />
+                        <form action={unblockDidAction.bind(null, d.did)}>
+                          <Button type="submit" size="sm" variant="ghost" className="text-destructive">
+                            Remove
+                          </Button>
+                        </form>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
