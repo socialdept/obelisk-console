@@ -10,18 +10,31 @@ import {
 /** Base scope: identity only — we don't act on the user's behalf (yet). */
 export const OAUTH_SCOPE = "atproto";
 
+/** The live origin, or null on the server. */
+function origin(): string | null {
+  return typeof window === "undefined" ? null : window.location.origin;
+}
+
+function isLoopback(o: string): boolean {
+  return o.startsWith("http://127.0.0.1") || o.startsWith("http://localhost");
+}
+
 function redirectUri(): string {
+  const o = origin();
+  if (o && !isLoopback(o)) return `${o}/oauth/callback`;
   return process.env.NEXT_PUBLIC_OAUTH_REDIRECT ?? "http://127.0.0.1:3000/oauth/callback";
 }
 
 /**
- * The public client_id. In prod this is a hosted client-metadata.json URL. For
- * localhost dev, atproto uses the loopback client: `http://localhost` with the
- * redirect_uri + scope carried as query params (no metadata fetch). Access the
- * app via 127.0.0.1 (not localhost) so the redirect host matches.
+ * The public client_id. On a real host it's the hosted client-metadata.json URL,
+ * derived from the current origin (so the image is domain-agnostic — the served
+ * metadata at /oauth/client-metadata.json derives the same way). On loopback,
+ * atproto's localhost client: `http://localhost` with redirect_uri + scope as
+ * query params (no metadata fetch). Access dev via 127.0.0.1 so the host matches.
  */
 function clientId(): string {
-  if (process.env.NEXT_PUBLIC_OAUTH_CLIENT_ID) return process.env.NEXT_PUBLIC_OAUTH_CLIENT_ID;
+  const o = origin();
+  if (o && !isLoopback(o)) return `${o}/oauth/client-metadata.json`;
   const params = new URLSearchParams({ redirect_uri: redirectUri(), scope: OAUTH_SCOPE });
   return `http://localhost?${params.toString()}`;
 }

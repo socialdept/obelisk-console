@@ -1,0 +1,42 @@
+# Obelisk Console — deploys as its own stack, fronted by the Obelisk archive's
+# existing Caddy (a second Caddy can't also bind 80/443 on one box). The console
+# container joins the archive's compose network so that Caddy can reverse-proxy
+# to it; add the `console.…` vhost to the archive's Caddyfile (see README).
+#
+#   docker compose up -d --build
+#
+# Requires the archive stack (its network `obelisk_default`) to be up first.
+
+services:
+  console:
+    build:
+      context: .
+    image: obelisk-console
+    restart: unless-stopped
+    environment:
+      # The archive. Since we're on its network you can use the internal
+      # http://app:6060 (faster, no public round-trip) or the public URL.
+      OBELISK_API_URL: ${OBELISK_API_URL:?set OBELISK_API_URL (e.g. https://obelisk.socialde.pt)}
+      OBELISK_API_TOKEN: ${OBELISK_API_TOKEN:?set OBELISK_API_TOKEN (an archive bearer token)}
+      OPERATOR_DIDS: ${OPERATOR_DIDS:?set OPERATOR_DIDS (comma-separated atproto DIDs allowed to log in)}
+      SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET (>= 32 chars; openssl rand -hex 32)}
+      SQLITE_PATH: /data/console.db
+    volumes:
+      - consoledata:/data
+    networks:
+      - obelisk
+    expose:
+      - "3000"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+networks:
+  # The archive compose's default network (project dir `obelisk` → `obelisk_default`).
+  obelisk:
+    external: true
+    name: obelisk_default
+
+volumes:
+  consoledata: {}
