@@ -63,10 +63,15 @@ export default async function StatsPage() {
 }
 
 async function StatCards() {
-  const [byCollection, coldGroups, types] = await Promise.all([
+  const [byCollection, coldGroups, typeCount] = await Promise.all([
     collectionAgg(),
     coldAgg(),
-    safe(getTypes().then((r) => r.types?.length ?? 0), 0),
+    // getTypes returns { path: { nsid: count } } — "$types seen" is the number of
+    // distinct nsids across all paths.
+    safe(
+      getTypes().then((r) => new Set(Object.values(r.types ?? {}).flatMap((m) => Object.keys(m))).size),
+      0,
+    ),
   ]);
   const total = byCollection.reduce((s, g) => s + g.count, 0);
   const coldTotal = coldGroups.reduce((s, g) => s + g.count, 0);
@@ -79,7 +84,7 @@ async function StatCards() {
         hint={total > 0 ? `${((coldTotal / total) * 100).toFixed(1)}% of the archive` : undefined}
       />
       <Stat label="Collections" value={num(byCollection.length)} />
-      <Stat label="$types seen" value={num(types)} />
+      <Stat label="$types seen" value={num(typeCount)} />
     </div>
   );
 }

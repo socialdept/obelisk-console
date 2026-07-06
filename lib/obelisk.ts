@@ -171,14 +171,10 @@ export async function getRecordByUri(uri: string): Promise<SearchRecord> {
   return res.json() as Promise<SearchRecord>;
 }
 
-export interface TypeEntry {
-  nsid?: string;
-  type?: string;
-  count: number;
-  [k: string]: unknown;
-}
+/** `getTypes` returns a $type inventory nested by path → nsid → count. */
+export type TypeInventory = Record<string, Record<string, number>>;
 export const getTypes = (params?: { collection?: string; path?: string }) =>
-  svcQuery<{ types: TypeEntry[] }>("getTypes", params);
+  svcQuery<{ types: TypeInventory }>("getTypes", params);
 
 export const createAudience = (name: string, definition: unknown) =>
   svcProcedure("createAudience", { name, definition });
