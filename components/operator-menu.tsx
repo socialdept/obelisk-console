@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -28,10 +29,12 @@ export function OperatorMenu({ did, handle }: { did: string; handle?: string }) 
         </Button>
       } />
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="font-normal">
-          <p className="text-sm font-medium">{handle ? `@${handle}` : "Operator"}</p>
-          <p className="text-muted-foreground truncate font-mono text-xs">{did}</p>
-        </DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="font-normal">
+            <p className="text-sm font-medium">{handle ? `@${handle}` : "Operator"}</p>
+            <p className="text-muted-foreground truncate font-mono text-xs">{did}</p>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
           <LogOut className="size-4" /> Sign out

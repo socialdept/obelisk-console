@@ -9,7 +9,7 @@ import { getProfiles, type Profile } from "@/lib/bsky";
 import { obeliskConfig } from "@/lib/config";
 import { aggregate, getTypes, hasToken, type AggregateGroup, type TypeEntry } from "@/lib/obelisk";
 
-const num = (n: number) => n.toLocaleString();
+const num = (n?: number | null) => (n ?? 0).toLocaleString();
 
 async function safe<T>(p: Promise<T>, fallback: T): Promise<T> {
   try {
@@ -33,10 +33,10 @@ export default async function StatsPage() {
   if (!hasToken()) return shell(<NeedsToken />);
 
   const [byCollection, byDid, byDay, types] = await Promise.all([
-    safe(aggregate({ groupBy: "collection" }).then((r) => r.groups), [] as AggregateGroup[]),
-    safe(aggregate({ groupBy: "did", limit: 10 }).then((r) => r.groups), [] as AggregateGroup[]),
-    safe(aggregate({ source: "events", groupBy: "createdAt:day" }).then((r) => r.groups), [] as AggregateGroup[]),
-    safe(getTypes().then((r) => r.types), [] as TypeEntry[]),
+    safe(aggregate({ groupBy: "collection" }).then((r) => r.groups ?? []), [] as AggregateGroup[]),
+    safe(aggregate({ groupBy: "did", limit: 10 }).then((r) => r.groups ?? []), [] as AggregateGroup[]),
+    safe(aggregate({ source: "events", groupBy: "createdAt:day" }).then((r) => r.groups ?? []), [] as AggregateGroup[]),
+    safe(getTypes().then((r) => r.types ?? []), [] as TypeEntry[]),
   ]);
 
   const profiles = await safe(getProfiles(byDid.map((g) => g.key.did).filter(Boolean)), {} as Record<string, Profile>);
