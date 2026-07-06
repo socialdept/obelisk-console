@@ -1,4 +1,5 @@
 import { Boxes } from "lucide-react";
+import { ModeBadge } from "@/components/mode-badge";
 import { Nav } from "@/components/nav";
 import { OperatorMenu } from "@/components/operator-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -34,7 +35,8 @@ export function AppShell({
           <nav className="ml-2 hidden md:block">
             <Nav />
           </nav>
-          <div className="ml-auto flex items-center gap-1">
+          <div className="ml-auto flex items-center gap-2">
+            <ModeBadge />
             <ThemeToggle />
             <OperatorMenu did={operator.did} handle={operator.handle} />
           </div>
