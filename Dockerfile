@@ -1,22 +1,27 @@
-# Obelisk Console — Next.js 16 standalone server, run under Bun.
+# Obelisk Console — Next.js 16 standalone server on Node.
 #
-# Multi-stage: install (frozen lockfile) → build (Next standalone) → slim runtime
-# carrying only the standalone bundle + static assets. better-sqlite3 (native) is
-# traced into .next/standalone by Next's output tracing.
+# Node end-to-end (not Bun): better-sqlite3 is a native addon, and its binary must
+# match the runtime ABI — installing under Bun and running under Node mismatches.
+# Multi-stage: install (with build tools for the native compile) → build (Next
+# standalone) → slim runtime carrying only the standalone bundle + static assets.
 
-FROM oven/bun:1 AS deps
+FROM node:22-slim AS deps
 WORKDIR /app
-COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile
+# better-sqlite3 uses a prebuilt binary when available, else compiles — keep the
+# toolchain here (deps stage only) so the compile fallback works.
+RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ \
+  && rm -rf /var/lib/apt/lists/*
+COPY package.json ./
+RUN npm install --no-audit --no-fund
 
-FROM oven/bun:1 AS build
+FROM node:22-slim AS build
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN bun run build
+RUN npm run build
 
-FROM oven/bun:1 AS release
+FROM node:22-slim AS release
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -30,7 +35,7 @@ COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
 
-RUN mkdir -p /data && chown -R bun:bun /data /app
-USER bun
+RUN mkdir -p /data && chown -R node:node /data /app
+USER node
 EXPOSE 3000
-CMD ["bun", "server.js"]
+CMD ["node", "server.js"]
