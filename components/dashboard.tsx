@@ -157,13 +157,9 @@ export function Dashboard() {
       )}
 
       {/* backfill */}
-      {status.hasToken && (
+      {status.backfill.length > 0 && (
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium">Backfill</h2>
-            <BackfillDialog />
-          </div>
-          {status.backfill.length === 0 && <p className="text-muted-foreground text-sm">No collections reporting.</p>}
+          <h2 className="text-sm font-medium">Backfill</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {status.backfill
               .slice()
@@ -171,6 +167,26 @@ export function Dashboard() {
               .map((c) => (
                 <BackfillCard key={c.collection} c={c} />
               ))}
+          </div>
+        </div>
+      )}
+
+      {/* advanced — migration tools, not needed in normal operation */}
+      {status.hasToken && (
+        <div className="space-y-3 border-t pt-6">
+          <div>
+            <h2 className="text-sm font-medium">Advanced</h2>
+            <p className="text-muted-foreground text-sm">Migration tools — you won&apos;t need these in normal operation.</p>
+          </div>
+          <div className="flex items-center justify-between gap-4 rounded-lg border p-3">
+            <div className="text-sm">
+              <p className="font-medium">Seed event backfill</p>
+              <p className="text-muted-foreground">
+                Emit events for records that entered the archive <em>without</em> one — only happens migrating a
+                pre-event-log database. Normal ingest &amp; backfill already emit events.
+              </p>
+            </div>
+            <BackfillDialog />
           </div>
         </div>
       )}
