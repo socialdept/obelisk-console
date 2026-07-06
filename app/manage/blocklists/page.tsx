@@ -55,7 +55,7 @@ export default async function BlocklistsPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <form action={blockDidAction} className="flex flex-wrap items-center gap-2">
-            <Input name="did" placeholder="handle.bsky.social or did:plc:…" className="w-72" required />
+            <Input name="did" placeholder="actor" className="w-72" required />
             <Input name="note" placeholder="note (optional)" className="w-48" />
             <label className="text-muted-foreground flex items-center gap-1.5 text-sm">
               <input type="checkbox" name="purge" className="accent-primary" /> purge
