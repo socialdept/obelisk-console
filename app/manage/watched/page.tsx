@@ -43,7 +43,7 @@ export default async function WatchedPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <form action={watchDidAction} className="flex flex-wrap items-center gap-2">
-            <Input name="did" placeholder="did:plc:…" className="w-64 font-mono" required />
+            <Input name="did" placeholder="handle.bsky.social or did:plc:…" className="w-72" required />
             <Input name="note" placeholder="note (optional)" className="w-48" />
             <Button type="submit" size="sm">Watch</Button>
           </form>

@@ -9,6 +9,28 @@ export interface Profile {
 
 const APPVIEW = "https://public.api.bsky.app";
 
+/**
+ * Normalize an actor input to a DID. Pass-through if it's already a DID; if it
+ * looks like a handle (contains a dot), resolve it via the AppView. Returns null
+ * if it's neither a DID nor a resolvable handle.
+ */
+export async function resolveActor(input: string): Promise<string | null> {
+  const v = input.trim().replace(/^@/, "");
+  if (v.startsWith("did:")) return v;
+  if (!v.includes(".")) return null;
+  try {
+    const res = await fetch(`${APPVIEW}/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(v)}`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { did?: string };
+    return data.did ?? null;
+  } catch {
+    return null;
+  }
+}
+
 /** Batched profile lookup (getProfiles caps at 25 actors/request). Unresolvable DIDs are omitted. */
 export async function getProfiles(dids: string[]): Promise<Record<string, Profile>> {
   const out: Record<string, Profile> = {};
