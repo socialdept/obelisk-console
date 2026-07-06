@@ -1,3 +1,5 @@
+import { ConfirmButton } from "@/components/confirm-button";
+import { CreateAudienceDialog } from "@/components/create-audience-dialog";
 import { Empty, ErrorNote, NeedsToken, PageHeader } from "@/components/manage-ui";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,12 +35,15 @@ export default async function AudiencesPage() {
 
   return (
     <div className="space-y-6">
-      {header}
+      <div className="flex items-start justify-between gap-4">
+        {header}
+        <CreateAudienceDialog />
+      </div>
       {error && <ErrorNote message={error} />}
       <Card>
         <CardContent className="py-4">
           {audiences.length === 0 ? (
-            <Empty>No audiences. Define them via the archive API.</Empty>
+            <Empty>No audiences yet — create one above.</Empty>
           ) : (
             <Table>
               <TableHeader>
@@ -56,9 +61,13 @@ export default async function AudiencesPage() {
                       <Badge variant="outline" className="text-xs">{kindOf(a.definition)}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <form action={deleteAudienceAction.bind(null, a.name)}>
-                        <Button type="submit" size="sm" variant="ghost" className="text-destructive">Delete</Button>
-                      </form>
+                      <ConfirmButton
+                        action={deleteAudienceAction.bind(null, a.name)}
+                        label="Delete"
+                        confirmLabel="Delete"
+                        title="Delete audience?"
+                        description={`"${a.name}" will be removed. Subscriptions/feeds referencing it stop resolving.`}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}

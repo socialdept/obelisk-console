@@ -1,3 +1,4 @@
+import { ConfirmButton } from "@/components/confirm-button";
 import { CreateWebhookDialog } from "@/components/create-webhook-dialog";
 import { Empty, ErrorNote, NeedsToken, PageHeader } from "@/components/manage-ui";
 import { Badge } from "@/components/ui/badge";
@@ -66,9 +67,13 @@ export default async function WebhooksPage() {
                         <form action={testWebhookAction.bind(null, h.id)}>
                           <Button type="submit" size="sm" variant="ghost">Test</Button>
                         </form>
-                        <form action={deleteWebhookAction.bind(null, h.id)}>
-                          <Button type="submit" size="sm" variant="ghost" className="text-destructive">Delete</Button>
-                        </form>
+                        <ConfirmButton
+                          action={deleteWebhookAction.bind(null, h.id)}
+                          label="Delete"
+                          confirmLabel="Delete"
+                          title="Delete webhook?"
+                          description={`"${h.name}" will stop receiving events. This can't be undone.`}
+                        />
                       </div>
                     </TableCell>
                   </TableRow>
