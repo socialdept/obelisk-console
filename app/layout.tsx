@@ -20,6 +20,12 @@ export const metadata: Metadata = {
   description: "Operator console for the Obelisk AT Protocol archive.",
 };
 
+// Every route reads the session cookie (operator gate) and per-request env, so
+// nothing can be statically prerendered at build time — force dynamic app-wide.
+// (Without this, `next build` tries to prerender e.g. /manage/audiences and throws
+// on the unset SESSION_SECRET.)
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({
   children,
 }: Readonly<{
