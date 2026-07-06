@@ -13,10 +13,26 @@ import type { Profile } from "@/lib/bsky";
 const selectCls = "border-input bg-transparent h-8 w-full rounded-lg border px-2 text-sm";
 
 const KINDS = [
-  { value: "backlink", label: "backlink", blurb: "Repos whose records link TO a target." },
-  { value: "outlink", label: "outlink", blurb: "Repos that an account's records link to." },
-  { value: "collection", label: "collection", blurb: "Repos with records in a collection." },
-  { value: "static", label: "static", blurb: "An explicit list of accounts." },
+  {
+    value: "backlink",
+    label: "backlink",
+    help: "Everyone pointing AT a thing. Members are the repos whose records link to your target URI. Example: all subscribers of a publication — repos with a site.standard.graph.subscription whose publication field is your publication's URI. Narrow it with a collection and/or link path.",
+  },
+  {
+    value: "outlink",
+    label: "outlink",
+    help: "Everyone one account points at. Members are the repos that a chosen account's records link to. Example: every publication a given user subscribes to, or everyone they recommend. Narrow it to which of their collections / link paths count.",
+  },
+  {
+    value: "collection",
+    label: "collection",
+    help: "Everyone who has a certain kind of record. Members are the repos with at least one record in a collection — optionally only those whose record matches a field (e.g. content.$type = app.offprint.content). Example: everyone who has published a document.",
+  },
+  {
+    value: "static",
+    label: "static",
+    help: "A fixed list. Members are exactly the accounts you paste in — no query, no auto-updating. Use it for a hand-picked set.",
+  },
 ];
 
 async function resolve(actor: string): Promise<string | null> {
@@ -170,7 +186,9 @@ export function AudienceBuilder({
               </button>
             ))}
           </div>
-          <p className="text-muted-foreground text-xs">{KINDS.find((k) => k.value === kind)?.blurb}</p>
+          <div className="bg-muted/50 text-muted-foreground rounded-md border p-3 text-xs leading-relaxed">
+            {KINDS.find((k) => k.value === kind)?.help}
+          </div>
         </Field>
 
         {kind === "backlink" && (
@@ -262,11 +280,15 @@ export function AudienceBuilder({
               <p className="text-muted-foreground flex items-center gap-1.5 text-xs">
                 <Users className="size-3.5" /> Sample
               </p>
-              {preview.members.slice(0, 10).map((d) => (
-                <DidIdentity key={d} did={d} profile={preview.profiles?.[d]} />
-              ))}
-              {(preview.count ?? 0) > 10 && (
-                <p className="text-muted-foreground pt-1 text-xs">and {(preview.count! - 10).toLocaleString()} more…</p>
+              <div className="max-h-64 space-y-1 overflow-y-auto pr-1">
+                {preview.members.map((d) => (
+                  <DidIdentity key={d} did={d} profile={preview.profiles?.[d]} />
+                ))}
+              </div>
+              {(preview.count ?? 0) > preview.members.length && (
+                <p className="text-muted-foreground pt-1 text-xs">
+                  and {(preview.count! - preview.members.length).toLocaleString()} more…
+                </p>
               )}
             </div>
           )}
