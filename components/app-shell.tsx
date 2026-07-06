@@ -1,16 +1,16 @@
 import { Boxes } from "lucide-react";
+import { OperatorMenu } from "@/components/operator-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 
-/**
- * Top-level authed chrome: brand, the connected-archive badge, theme toggle.
- * The operator menu (atproto identity / logout) lands with the auth gate (LAB-61).
- */
+/** Top-level authed chrome: brand, connected-archive badge, theme toggle, operator menu. */
 export function AppShell({
   obeliskUrl,
+  operator,
   children,
 }: {
   obeliskUrl: string;
+  operator: { did: string; handle?: string };
   children: React.ReactNode;
 }) {
   const host = safeHost(obeliskUrl);
@@ -30,8 +30,9 @@ export function AppShell({
               set OBELISK_API_URL
             </Badge>
           )}
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-1">
             <ThemeToggle />
+            <OperatorMenu did={operator.did} handle={operator.handle} />
           </div>
         </div>
       </header>

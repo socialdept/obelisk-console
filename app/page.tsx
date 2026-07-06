@@ -2,6 +2,7 @@ import { Activity, CheckCircle2, Database, Layers, Radio, XCircle } from "lucide
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { requireOperator } from "@/lib/auth";
 import { obeliskConfig } from "@/lib/config";
 
 type Health = "up" | "down" | "unset";
@@ -27,11 +28,12 @@ const PANELS = [
 ] as const;
 
 export default async function Home() {
+  const operator = await requireOperator();
   const { url } = obeliskConfig();
   const health = await checkHealth(url);
 
   return (
-    <AppShell obeliskUrl={url}>
+    <AppShell obeliskUrl={url} operator={operator}>
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>

@@ -9,6 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@atcute/client": "^5.1.1",
+    "@atcute/identity": "^2.0.1",
+    "@atcute/identity-resolver": "^2.0.1",
+    "@atcute/oauth-browser-client": "^4.0.1",
     "@base-ui/react": "^1.6.0",
     "better-sqlite3": "^12.11.1",
     "class-variance-authority": "^0.7.1",
