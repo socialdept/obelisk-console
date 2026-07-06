@@ -1,4 +1,5 @@
 import { Boxes } from "lucide-react";
+import { Nav } from "@/components/nav";
 import { OperatorMenu } from "@/components/operator-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
@@ -30,10 +31,16 @@ export function AppShell({
               set OBELISK_API_URL
             </Badge>
           )}
+          <nav className="ml-2 hidden md:block">
+            <Nav />
+          </nav>
           <div className="ml-auto flex items-center gap-1">
             <ThemeToggle />
             <OperatorMenu did={operator.did} handle={operator.handle} />
           </div>
+        </div>
+        <div className="mx-auto flex w-full max-w-7xl items-center px-4 pb-2 md:hidden">
+          <Nav />
         </div>
       </header>
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">{children}</main>
