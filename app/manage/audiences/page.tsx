@@ -1,4 +1,4 @@
-import { AudienceBuilderDialog } from "@/components/audience-builder-dialog";
+import { AudienceBuilderModal } from "@/components/audience-builder-modal";
 import { AudienceMembersDialog } from "@/components/audience-members-dialog";
 import { ConfirmButton } from "@/components/confirm-button";
 import { Empty, ErrorNote, NeedsToken, PageHeader } from "@/components/manage-ui";
@@ -38,7 +38,7 @@ export default async function AudiencesPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         {header}
-        <AudienceBuilderDialog collections={collections} />
+        <AudienceBuilderModal collections={collections} />
       </div>
       {error && <ErrorNote message={error} />}
       <Card>

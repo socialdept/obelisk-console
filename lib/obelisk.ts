@@ -182,6 +182,13 @@ export const getTypes = (params?: { collection?: string; path?: string }) =>
 
 export const createAudience = (name: string, definition: unknown) =>
   svcProcedure("createAudience", { name, definition });
+export interface AudiencePreview {
+  count: number;
+  members: string[];
+  limit: number;
+}
+export const previewAudience = (definition: unknown, limit = 24) =>
+  svcProcedure<AudiencePreview>("previewAudience", { definition, limit });
 
 export interface AggregateGroup {
   key: Record<string, string>;
