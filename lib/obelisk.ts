@@ -204,8 +204,11 @@ export function aggregate(params: {
   until?: string;
   orderBy?: string;
   limit?: number;
+  where?: Record<string, unknown>;
 }) {
-  return svcQuery<{ groups: AggregateGroup[] }>("aggregate", params);
+  // POST so `where` (an object) can ride in the body — the verb reads the full
+  // JSON body on POST, scalar query params on GET.
+  return svcProcedure<{ groups: AggregateGroup[] }>("aggregate", params);
 }
 
 // list queries

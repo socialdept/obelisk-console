@@ -1,6 +1,6 @@
 import { AppShell } from "@/components/app-shell";
 import { ActivityChart } from "@/components/activity-chart";
-import { BlockDidDialog } from "@/components/block-did-dialog";
+import { ExcludeDidDialog } from "@/components/exclude-did-dialog";
 import { DidIdentity, DidLinks } from "@/components/did-identity";
 import { Empty, NeedsToken, PageHeader } from "@/components/manage-ui";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,11 +33,17 @@ export default async function StatsPage() {
 
   if (!hasToken()) return shell(<NeedsToken />);
 
-  const [byCollection, byDid, byDay, types] = await Promise.all([
+  const [byCollection, byDid, byDay, types, coldTotal] = await Promise.all([
     safe(aggregate({ groupBy: "collection" }).then((r) => r.groups ?? []), [] as AggregateGroup[]),
     safe(aggregate({ groupBy: "did", limit: 10 }).then((r) => r.groups ?? []), [] as AggregateGroup[]),
     safe(aggregate({ source: "events", groupBy: "createdAt:day" }).then((r) => r.groups ?? []), [] as AggregateGroup[]),
     safe(getTypes().then((r) => r.types ?? []), [] as TypeEntry[]),
+    safe(
+      aggregate({ groupBy: "collection", where: { cold: { eq: true } } }).then((r) =>
+        (r.groups ?? []).reduce((s, g) => s + g.count, 0),
+      ),
+      0,
+    ),
   ]);
 
   const profiles = await safe(getProfiles(byDid.map((g) => g.key.did).filter(Boolean)), {} as Record<string, Profile>);
@@ -50,8 +56,9 @@ export default async function StatsPage() {
 
   return shell(
     <>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Total records" value={num(total)} />
+        <Stat label="Cold records" value={num(coldTotal)} hint={total > 0 ? `${((coldTotal / total) * 100).toFixed(1)}% not embedded` : undefined} />
         <Stat label="Collections" value={num(byCollection.length)} />
         <Stat label="$types seen" value={num(types.length)} />
       </div>
@@ -97,7 +104,7 @@ export default async function StatsPage() {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">Most prolific repos</CardTitle>
-          <CardDescription>Spot a spammer flooding the archive? Block it here — with optional purge/force.</CardDescription>
+          <CardDescription>Flooding the archive? Exclude it — block it entirely, or cool it (keep, don&apos;t embed).</CardDescription>
         </CardHeader>
         <CardContent>
           {byDid.length === 0 ? (
@@ -121,7 +128,7 @@ export default async function StatsPage() {
                     <TableCell>
                       <div className="flex items-center justify-end gap-1">
                         <DidLinks did={g.key.did} handle={profiles[g.key.did]?.handle} />
-                        <BlockDidDialog did={g.key.did} />
+                        <ExcludeDidDialog did={g.key.did} />
                       </div>
                     </TableCell>
                   </TableRow>
@@ -135,12 +142,13 @@ export default async function StatsPage() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <Card>
       <CardContent className="py-5">
         <p className="text-muted-foreground text-xs">{label}</p>
         <p className="font-heading mt-1 text-2xl font-semibold tabular-nums">{value}</p>
+        {hint && <p className="text-muted-foreground mt-0.5 text-xs">{hint}</p>}
       </CardContent>
     </Card>
   );
