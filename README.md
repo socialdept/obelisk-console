@@ -34,4 +34,15 @@ Runs anywhere — **not** on the $6 archive box.
 
 ## Status
 
-🚧 In progress. Scaffold up (Next.js + Tailwind + shadcn + SQLite, dark-mode shell, connection check). Next: atproto auth gate → Obelisk proxy + metrics poller → observability dashboard → management pages. Tracked in the **Obelisk Console** Linear project (Labs).
+🚧 Usable, pre-deploy. Built: atproto login + operator allowlist + auth gate · server-side Obelisk proxy · SQLite metrics poller · live **dashboard** (embed/ingest rate + queue-depth charts, health strip, backfill, stat cards) · **management** (blocklists, watched DIDs, webhooks, audiences). Remaining: visual polish, hosted OAuth `client-metadata.json`, and a deploy target (LAB-66). Runs locally today.
+
+### Local test
+
+```bash
+cd obelisk-console
+cp .env.example .env        # set OBELISK_API_URL, OPERATOR_DIDS (your DID), SESSION_SECRET; add OBELISK_API_TOKEN for metrics/management
+bun run dev
+```
+Open **http://127.0.0.1:3000** (use `127.0.0.1`, not `localhost` — the atproto loopback OAuth client pins the redirect host), sign in with your handle, and you land on the dashboard. Charts fill in ~1 min once a token is set and the poller has ≥2 samples.
+
+Tracked in the **Obelisk Console** Linear project (Labs).
