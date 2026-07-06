@@ -2,6 +2,7 @@
 
 import { AlertTriangle, CheckCircle2, KeyRound, Loader2, XCircle } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { BackfillDialog } from "@/components/backfill-dialog";
 import { PendingChart, RateChart, type SeriesPoint } from "@/components/metric-charts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -156,9 +157,13 @@ export function Dashboard() {
       )}
 
       {/* backfill */}
-      {status.backfill.length > 0 && (
+      {status.hasToken && (
         <div className="space-y-3">
-          <h2 className="text-sm font-medium">Backfill</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-medium">Backfill</h2>
+            <BackfillDialog />
+          </div>
+          {status.backfill.length === 0 && <p className="text-muted-foreground text-sm">No collections reporting.</p>}
           <div className="grid gap-3 sm:grid-cols-2">
             {status.backfill
               .slice()

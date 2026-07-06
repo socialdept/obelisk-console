@@ -22,7 +22,7 @@ function title(r: SearchRecord): string {
   return v?.title || v?.name || r.uri.split("/").pop() || r.uri;
 }
 
-export function SearchView() {
+export function SearchView({ collections }: { collections: string[] }) {
   return (
     <Tabs defaultValue="records" className="space-y-4">
       <TabsList>
@@ -31,7 +31,7 @@ export function SearchView() {
         <TabsTrigger value="record">Record by URI</TabsTrigger>
       </TabsList>
       <TabsContent value="records">
-        <RecordsSearch />
+        <RecordsSearch collections={collections} />
       </TabsContent>
       <TabsContent value="footprint">
         <FootprintSearch />
@@ -44,8 +44,10 @@ export function SearchView() {
 }
 
 // ── Records: keyword / semantic / hybrid ─────────────────────────────
-function RecordsSearch() {
-  const [collection, setCollection] = useState("site.standard.document");
+function RecordsSearch({ collections }: { collections: string[] }) {
+  const [collection, setCollection] = useState(
+    collections.includes("site.standard.document") ? "site.standard.document" : (collections[0] ?? "site.standard.document"),
+  );
   const [q, setQ] = useState("");
   const [mode, setMode] = useState("fts");
   const [busy, setBusy] = useState(false);
@@ -79,7 +81,14 @@ function RecordsSearch() {
       <form onSubmit={run} className="flex flex-wrap items-end gap-2">
         <div className="space-y-1.5">
           <Label className="text-xs">Collection</Label>
-          <Input value={collection} onChange={(e) => setCollection(e.target.value)} className="w-64 font-mono" />
+          <select value={collection} onChange={(e) => setCollection(e.target.value)} className={`${selectCls} w-64 font-mono`}>
+            {collections.length === 0 && <option value="site.standard.document">site.standard.document</option>}
+            {collections.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="flex-1 space-y-1.5" style={{ minWidth: 220 }}>
           <Label className="text-xs">Query</Label>

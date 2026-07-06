@@ -205,6 +205,12 @@ export const getBlockedPdses = () => svcQuery<{ blockedPdses: BlockedPds[] }>("g
 export const getWatchedDids = () => svcQuery<{ watchedDids: WatchedDid[] }>("getWatchedDids");
 export const getWebhooks = () => svcQuery<{ webhooks: Webhook[] }>("getWebhooks");
 export const getAudiences = () => svcQuery<{ audiences: Audience[] }>("getAudiences");
+export const getAudienceMembers = (name: string, limit = 50) =>
+  svcQuery<{ name: string; members: string[]; limit: number; offset: number }>("getAudienceMembers", { name, limit });
+export const listCollections = async (): Promise<string[]> => {
+  const { groups } = await aggregate({ groupBy: "collection" });
+  return groups.map((g) => g.key.collection).filter(Boolean).sort();
+};
 export const getFootprint = (did: string, includeDeleted = false) =>
   svcQuery<Footprint>("getFootprint", { did, includeDeleted: includeDeleted ? 1 : undefined });
 

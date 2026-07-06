@@ -1,5 +1,6 @@
 import { AppShell } from "@/components/app-shell";
 import { ActivityChart } from "@/components/activity-chart";
+import { BlockDidDialog } from "@/components/block-did-dialog";
 import { DidIdentity, DidLinks } from "@/components/did-identity";
 import { Empty, NeedsToken, PageHeader } from "@/components/manage-ui";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -96,6 +97,7 @@ export default async function StatsPage() {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">Most prolific repos</CardTitle>
+          <CardDescription>Spot a spammer flooding the archive? Block it here — with optional purge/force.</CardDescription>
         </CardHeader>
         <CardContent>
           {byDid.length === 0 ? (
@@ -106,7 +108,7 @@ export default async function StatsPage() {
                 <TableRow>
                   <TableHead>Repo</TableHead>
                   <TableHead className="text-right">Records</TableHead>
-                  <TableHead className="text-right">Links</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -117,8 +119,9 @@ export default async function StatsPage() {
                     </TableCell>
                     <TableCell className="text-right tabular-nums">{num(g.count)}</TableCell>
                     <TableCell>
-                      <div className="flex justify-end">
+                      <div className="flex items-center justify-end gap-1">
                         <DidLinks did={g.key.did} handle={profiles[g.key.did]?.handle} />
+                        <BlockDidDialog did={g.key.did} />
                       </div>
                     </TableCell>
                   </TableRow>
