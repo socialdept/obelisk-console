@@ -3,6 +3,7 @@
 import { AlertTriangle, CheckCircle2, KeyRound, Loader2, XCircle } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { BackfillDialog } from "@/components/backfill-dialog";
+import { ReindexDialog } from "@/components/reindex-dialog";
 import { PendingChart, RateChart, type SeriesPoint } from "@/components/metric-charts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -177,6 +178,16 @@ export function Dashboard() {
           <div>
             <h2 className="text-sm font-medium">Advanced</h2>
             <p className="text-muted-foreground text-sm">Migration tools — you won&apos;t need these in normal operation.</p>
+          </div>
+          <div className="flex items-center justify-between gap-4 rounded-lg border p-3">
+            <div className="text-sm">
+              <p className="font-medium">Reindex a repo</p>
+              <p className="text-muted-foreground">
+                Pull a repo from its PDS to recover records the live sync missed — e.g. what a blocklist dropped after
+                you unblock it. Scoped to the configured collections by default.
+              </p>
+            </div>
+            <ReindexDialog />
           </div>
           <div className="flex items-center justify-between gap-4 rounded-lg border p-3">
             <div className="text-sm">

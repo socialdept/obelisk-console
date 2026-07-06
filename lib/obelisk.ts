@@ -252,6 +252,9 @@ export const deleteWebhook = (id: number) => svcProcedure("deleteWebhook", { id 
 export const testWebhook = (id: number) => svcProcedure("testWebhook", { id });
 export const deleteAudience = (name: string) => svcProcedure("deleteAudience", { name });
 export const backfillEvents = (b: { collection?: string; did?: string }) => svcProcedure("backfillEvents", b);
+export const backfillRepo = (b: { did: string; all?: boolean }) =>
+  svcProcedure<{ did: string; status: string; scope: string }>("backfillRepo", b);
+export const getRepoBackfills = () => svcQuery<{ running: string[] }>("getRepoBackfills");
 
 // loose response types
 export interface BlockedDid {
