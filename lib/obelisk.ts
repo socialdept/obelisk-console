@@ -211,7 +211,6 @@ export function aggregate(params: {
 // list queries
 export const getBlockedDids = () => svcQuery<{ blockedDids: BlockedDid[] }>("getBlockedDids");
 export const getBlockedPdses = () => svcQuery<{ blockedPdses: BlockedPds[] }>("getBlockedPdses");
-export const getWatchedDids = () => svcQuery<{ watchedDids: WatchedDid[] }>("getWatchedDids");
 export const getWebhooks = () => svcQuery<{ webhooks: Webhook[] }>("getWebhooks");
 export const getAudiences = () => svcQuery<{ audiences: Audience[] }>("getAudiences");
 export const getAudienceMembers = (name: string, limit = 50) =>
@@ -243,8 +242,6 @@ export const addBlockedDid = (b: { did: string; note?: string; purge?: boolean; 
 export const removeBlockedDid = (did: string) => svcProcedure("removeBlockedDid", { did });
 export const addBlockedPds = (b: { pattern: string; note?: string }) => svcProcedure("addBlockedPds", b);
 export const removeBlockedPds = (pattern: string) => svcProcedure("removeBlockedPds", { pattern });
-export const addWatchedDid = (b: { did: string; note?: string }) => svcProcedure("addWatchedDid", b);
-export const removeWatchedDid = (did: string) => svcProcedure("removeWatchedDid", { did });
 export const deleteWebhook = (id: number) => svcProcedure("deleteWebhook", { id });
 export const testWebhook = (id: number) => svcProcedure("testWebhook", { id });
 export const deleteAudience = (name: string) => svcProcedure("deleteAudience", { name });
@@ -259,13 +256,6 @@ export interface BlockedDid {
 export interface BlockedPds {
   pattern: string;
   note?: string | null;
-  addedAt: string;
-}
-export interface WatchedDid {
-  did: string;
-  note?: string | null;
-  active?: boolean;
-  snapshotAt?: string | null;
   addedAt: string;
 }
 export interface Webhook {

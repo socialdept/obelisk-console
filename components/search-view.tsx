@@ -189,7 +189,6 @@ function FootprintSearch() {
               <span>
                 <span className="font-heading text-lg font-semibold">{num(data.footprint.totals.deleted)}</span> deleted
               </span>
-              {data.footprint.watched && <Badge variant="secondary">watched</Badge>}
             </div>
             {data.footprint.collections.length > 0 && (
               <Table>

@@ -9,7 +9,6 @@ const LINKS = [
   { href: "/search", label: "Search" },
   { href: "/stats", label: "Stats" },
   { href: "/manage/blocklists", label: "Blocklists" },
-  { href: "/manage/watched", label: "Watched" },
   { href: "/manage/webhooks", label: "Webhooks" },
   { href: "/manage/audiences", label: "Audiences" },
 ];

@@ -50,21 +50,6 @@ export async function unblockPdsAction(pattern: string) {
   revalidatePath("/manage/blocklists");
 }
 
-// ── watched DIDs ─────────────────────────────────────────────────────
-export async function watchDidAction(formData: FormData) {
-  await guard();
-  const input = String(formData.get("did") ?? "").trim();
-  if (!input) return;
-  await obk.addWatchedDid({ did: await toDid(input), note: String(formData.get("note") ?? "").trim() || undefined });
-  revalidatePath("/manage/watched");
-}
-
-export async function unwatchDidAction(did: string) {
-  await guard();
-  await obk.removeWatchedDid(did);
-  revalidatePath("/manage/watched");
-}
-
 // ── webhooks ─────────────────────────────────────────────────────────
 export async function testWebhookAction(id: number) {
   await guard();
