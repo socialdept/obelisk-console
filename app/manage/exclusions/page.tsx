@@ -1,3 +1,4 @@
+import { ConfirmButton } from "@/components/confirm-button";
 import { DidIdentity, DidLinks } from "@/components/did-identity";
 import { Empty, ErrorNote, NeedsToken, PageHeader } from "@/components/manage-ui";
 import { Button } from "@/components/ui/button";
@@ -229,11 +230,14 @@ export default async function ExclusionsPage() {
                       <TableCell>
                         <div className="flex items-center justify-end gap-1">
                           <DidLinks did={d.did} handle={profiles[d.did]?.handle} />
-                          <form action={unColdDidAction.bind(null, d.did)}>
-                            <Button type="submit" size="sm" variant="ghost" className="text-muted-foreground">
-                              Warm up
-                            </Button>
-                          </form>
+                          <ConfirmButton
+                            action={unColdDidAction.bind(null, d.did)}
+                            label="Warm up"
+                            confirmLabel="Warm up"
+                            variant="default"
+                            title="Warm up repo?"
+                            description="Its records will be re-queued for embedding — spending the CPU/$ you saved by cooling it."
+                          />
                         </div>
                       </TableCell>
                     </TableRow>
@@ -276,11 +280,14 @@ export default async function ExclusionsPage() {
                       <TableCell className="font-mono text-xs">{p.pattern}</TableCell>
                       <TableCell className="text-muted-foreground text-sm">{p.note ?? "—"}</TableCell>
                       <TableCell className="text-right">
-                        <form action={unColdPdsAction.bind(null, p.pattern)}>
-                          <Button type="submit" size="sm" variant="ghost" className="text-muted-foreground">
-                            Warm up
-                          </Button>
-                        </form>
+                        <ConfirmButton
+                          action={unColdPdsAction.bind(null, p.pattern)}
+                          label="Warm up"
+                          confirmLabel="Warm up"
+                          variant="default"
+                          title="Warm up PDS?"
+                          description="New records from this PDS will be embedded again. Already-archived cold records for it stay cold."
+                        />
                       </TableCell>
                     </TableRow>
                   ))}

@@ -24,12 +24,15 @@ export function ConfirmButton({
   title,
   description,
   confirmLabel = "Confirm",
+  variant = "destructive",
 }: {
   action: () => Promise<unknown>;
   label: string;
   title: string;
   description: string;
   confirmLabel?: string;
+  /** Confirm styling. `destructive` (default) for irreversible ops; `default` for reversible ones. */
+  variant?: "destructive" | "default";
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -50,7 +53,13 @@ export function ConfirmButton({
 
   return (
     <>
-      <Button type="button" size="sm" variant="ghost" className="text-destructive" onClick={() => setOpen(true)}>
+      <Button
+        type="button"
+        size="sm"
+        variant="ghost"
+        className={variant === "destructive" ? "text-destructive" : "text-muted-foreground"}
+        onClick={() => setOpen(true)}
+      >
         {label}
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -63,7 +72,7 @@ export function ConfirmButton({
             <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirm} disabled={busy} className="gap-1.5">
+            <Button variant={variant} onClick={confirm} disabled={busy} className="gap-1.5">
               {busy && <Loader2 className="size-4 animate-spin" />} {confirmLabel}
             </Button>
           </DialogFooter>
