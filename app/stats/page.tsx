@@ -58,7 +58,7 @@ export default async function StatsPage() {
     <>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Total records" value={num(total)} />
-        <Stat label="Cold records" value={num(coldTotal)} hint={total > 0 ? `${((coldTotal / total) * 100).toFixed(1)}% not embedded` : undefined} />
+        <Stat label="Cold records" value={num(coldTotal)} hint={total > 0 ? `${((coldTotal / total) * 100).toFixed(1)}% of the archive` : undefined} />
         <Stat label="Collections" value={num(byCollection.length)} />
         <Stat label="$types seen" value={num(types.length)} />
       </div>
