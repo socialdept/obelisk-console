@@ -69,20 +69,27 @@ export function AudienceBuilder({
   collections,
   onCreated,
   onCancel,
+  initial,
 }: {
   collections: string[];
   onCreated: () => void;
   onCancel: () => void;
+  /** When present, the builder edits an existing audience (name is fixed). */
+  initial?: { name: string; definition: unknown };
 }) {
-  const [name, setName] = useState("");
-  const [kind, setKind] = useState("backlink");
-  const [target, setTarget] = useState("");
-  const [did, setDid] = useState("");
-  const [collection, setCollection] = useState("");
-  const [path, setPath] = useState("");
-  const [mPath, setMPath] = useState("");
-  const [mValue, setMValue] = useState("");
-  const [staticDids, setStaticDids] = useState("");
+  const editing = Boolean(initial);
+  const def0 = (initial?.definition ?? {}) as Record<string, unknown>;
+  const matcher0 = (def0.matchers ?? {}) as Record<string, string>;
+
+  const [name, setName] = useState(initial?.name ?? "");
+  const [kind, setKind] = useState((def0.kind as string) ?? "backlink");
+  const [target, setTarget] = useState((def0.target as string) ?? "");
+  const [did, setDid] = useState((def0.did as string) ?? "");
+  const [collection, setCollection] = useState((def0.collection as string) ?? "");
+  const [path, setPath] = useState((def0.path as string) ?? "");
+  const [mPath, setMPath] = useState(Object.keys(matcher0)[0] ?? "");
+  const [mValue, setMValue] = useState(Object.values(matcher0)[0] ?? "");
+  const [staticDids, setStaticDids] = useState(((def0.dids as string[]) ?? []).join("\n"));
   const [preview, setPreview] = useState<Preview>({ loading: false });
   const [creating, setCreating] = useState(false);
 
@@ -138,18 +145,18 @@ export function AudienceBuilder({
     const def = await buildDefinition();
     if (!def) return toast.error("Complete the definition first");
     setCreating(true);
-    const res = await fetch("/api/audiences/create", {
+    const res = await fetch(editing ? "/api/audiences/update" : "/api/audiences/create", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ name: name.trim(), definition: def }),
     });
     setCreating(false);
     if (!res.ok) {
-      return toast.error("Couldn't create audience", {
+      return toast.error(editing ? "Couldn't update audience" : "Couldn't create audience", {
         description: ((await res.json().catch(() => ({}))) as { error?: string }).error,
       });
     }
-    toast.success(`Audience "${name.trim()}" created`);
+    toast.success(`Audience "${name.trim()}" ${editing ? "updated" : "created"}`);
     onCreated();
   }
 
@@ -168,8 +175,13 @@ export function AudienceBuilder({
     <div className="grid gap-6 md:grid-cols-2">
       {/* editor */}
       <div className="space-y-4">
-        <Field label="Name">
-          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="my-subscribers" />
+        <Field label="Name" hint={editing ? "can't be changed" : undefined}>
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="my-subscribers"
+            disabled={editing}
+          />
         </Field>
         <Field label="Kind">
           <div className="grid grid-cols-2 gap-2">
@@ -239,7 +251,7 @@ export function AudienceBuilder({
 
         <div className="flex gap-2 pt-2">
           <Button onClick={create} disabled={creating} className="gap-1.5">
-            {creating && <Loader2 className="size-4 animate-spin" />} Create audience
+            {creating && <Loader2 className="size-4 animate-spin" />} {editing ? "Save changes" : "Create audience"}
           </Button>
           <Button variant="outline" onClick={onCancel}>
             Cancel

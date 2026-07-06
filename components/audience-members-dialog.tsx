@@ -15,25 +15,31 @@ import {
 } from "@/components/ui/dialog";
 import type { Profile } from "@/lib/bsky";
 
-export function AudienceMembersDialog({ name }: { name: string }) {
+export function AudienceMembersDialog({ name, definition }: { name: string; definition: unknown }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [members, setMembers] = useState<string[] | null>(null);
+  const [count, setCount] = useState<number | null>(null);
+  const [members, setMembers] = useState<string[]>([]);
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [error, setError] = useState<string | null>(null);
 
   async function onOpen(o: boolean) {
     setOpen(o);
-    if (o && members === null) {
+    if (o && count === null) {
       setBusy(true);
-      const res = await fetch(`/api/audiences/members?name=${encodeURIComponent(name)}`);
+      const res = await fetch("/api/audiences/preview", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ definition, limit: 50 }),
+      });
       setBusy(false);
       if (res.ok) {
-        const d = (await res.json()) as { members: string[]; profiles: Record<string, Profile> };
+        const d = (await res.json()) as { count: number; members: string[]; profiles: Record<string, Profile> };
+        setCount(d.count);
         setMembers(d.members);
         setProfiles(d.profiles ?? {});
       } else {
-        setMembers([]);
+        setCount(0);
         setError(((await res.json().catch(() => ({}))) as { error?: string }).error ?? "failed to load");
       }
     }
@@ -48,7 +54,9 @@ export function AudienceMembersDialog({ name }: { name: string }) {
         <DialogHeader>
           <DialogTitle>Members of &ldquo;{name}&rdquo;</DialogTitle>
           <DialogDescription>
-            {members ? `${members.length}${members.length >= 50 ? "+ (first 50)" : ""} resolved live from the definition` : "Resolving…"}
+            {count === null
+              ? "Resolving…"
+              : `${count.toLocaleString()} member${count === 1 ? "" : "s"}${members.length < count ? ` · showing ${members.length}` : ""}, resolved live from the definition`}
           </DialogDescription>
         </DialogHeader>
         {busy && (
@@ -57,9 +65,9 @@ export function AudienceMembersDialog({ name }: { name: string }) {
           </div>
         )}
         {error && <p className="text-destructive text-sm">{error}</p>}
-        {members && members.length === 0 && !error && <Empty>No members.</Empty>}
+        {count === 0 && !error && !busy && <Empty>No members.</Empty>}
         <div className="space-y-1">
-          {members?.map((did) => (
+          {members.map((did) => (
             <div key={did} className="hover:bg-muted/50 flex items-center justify-between gap-2 rounded-md px-1 py-1">
               <DidIdentity did={did} profile={profiles[did]} />
               <DidLinks did={did} handle={profiles[did]?.handle} />

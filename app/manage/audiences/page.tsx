@@ -63,7 +63,8 @@ export default async function AudiencesPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center justify-end gap-1">
-                        <AudienceMembersDialog name={a.name} />
+                        <AudienceMembersDialog name={a.name} definition={a.definition} />
+                        <AudienceBuilderModal collections={collections} initial={{ name: a.name, definition: a.definition }} />
                         <ConfirmButton
                           action={deleteAudienceAction.bind(null, a.name)}
                           label="Delete"

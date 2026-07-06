@@ -182,6 +182,8 @@ export const getTypes = (params?: { collection?: string; path?: string }) =>
 
 export const createAudience = (name: string, definition: unknown) =>
   svcProcedure("createAudience", { name, definition });
+export const updateAudience = (name: string, definition: unknown) =>
+  svcProcedure("updateAudience", { name, definition });
 export interface AudiencePreview {
   count: number;
   members: string[];
