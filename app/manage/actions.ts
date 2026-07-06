@@ -27,13 +27,13 @@ export async function blockDidAction(formData: FormData) {
     purge: formData.get("purge") === "on",
     force: formData.get("force") === "on",
   });
-  revalidatePath("/manage/blocklists");
+  revalidatePath("/manage/exclusions");
 }
 
 export async function unblockDidAction(did: string) {
   await guard();
   await obk.removeBlockedDid(did);
-  revalidatePath("/manage/blocklists");
+  revalidatePath("/manage/exclusions");
 }
 
 export async function blockPdsAction(formData: FormData) {
@@ -41,13 +41,13 @@ export async function blockPdsAction(formData: FormData) {
   const pattern = String(formData.get("pattern") ?? "").trim();
   if (!pattern) return;
   await obk.addBlockedPds({ pattern, note: String(formData.get("note") ?? "").trim() || undefined });
-  revalidatePath("/manage/blocklists");
+  revalidatePath("/manage/exclusions");
 }
 
 export async function unblockPdsAction(pattern: string) {
   await guard();
   await obk.removeBlockedPds(pattern);
-  revalidatePath("/manage/blocklists");
+  revalidatePath("/manage/exclusions");
 }
 
 // ── cold storage ─────────────────────────────────────────────────────
@@ -56,13 +56,13 @@ export async function coldDidAction(formData: FormData) {
   const input = String(formData.get("did") ?? "").trim();
   if (!input) return;
   await obk.addColdDid({ did: await toDid(input), note: String(formData.get("note") ?? "").trim() || undefined });
-  revalidatePath("/manage/cold");
+  revalidatePath("/manage/exclusions");
 }
 
 export async function unColdDidAction(did: string) {
   await guard();
   await obk.removeColdDid(did);
-  revalidatePath("/manage/cold");
+  revalidatePath("/manage/exclusions");
 }
 
 export async function coldPdsAction(formData: FormData) {
@@ -70,13 +70,13 @@ export async function coldPdsAction(formData: FormData) {
   const pattern = String(formData.get("pattern") ?? "").trim();
   if (!pattern) return;
   await obk.addColdPds({ pattern, note: String(formData.get("note") ?? "").trim() || undefined });
-  revalidatePath("/manage/cold");
+  revalidatePath("/manage/exclusions");
 }
 
 export async function unColdPdsAction(pattern: string) {
   await guard();
   await obk.removeColdPds(pattern);
-  revalidatePath("/manage/cold");
+  revalidatePath("/manage/exclusions");
 }
 
 // ── webhooks ─────────────────────────────────────────────────────────

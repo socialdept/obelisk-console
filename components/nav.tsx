@@ -8,8 +8,7 @@ const LINKS = [
   { href: "/", label: "Overview" },
   { href: "/search", label: "Search" },
   { href: "/stats", label: "Stats" },
-  { href: "/manage/blocklists", label: "Blocklists" },
-  { href: "/manage/cold", label: "Cold" },
+  { href: "/manage/exclusions", label: "Exclusions" },
   { href: "/manage/webhooks", label: "Webhooks" },
   { href: "/manage/audiences", label: "Audiences" },
 ];
