@@ -130,7 +130,7 @@ function RecordsSearch({ collections }: { collections: string[] }) {
                 )}
                 <div className="flex items-center justify-between gap-2">
                   <DidIdentity did={r.did} profile={profiles[r.did]} />
-                  <DidLinks did={r.did} handle={profiles[r.did]?.handle} />
+                  <DidLinks did={r.did} handle={profiles[r.did]?.handle} recordUri={r.uri} />
                 </div>
               </CardContent>
             </Card>

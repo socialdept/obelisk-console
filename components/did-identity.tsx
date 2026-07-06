@@ -23,8 +23,11 @@ export function DidIdentity({ did, profile }: { did: string; profile?: Profile }
 const linkCls =
   "text-muted-foreground hover:text-foreground hover:bg-accent inline-flex h-7 items-center gap-1 rounded-md border px-2 text-xs transition-colors";
 
-/** Out-links to the repo's Bluesky profile and its records on pdsls. */
-export function DidLinks({ did, handle }: { did: string; handle?: string }) {
+/**
+ * Out-links to the repo's Bluesky profile and its records on pdsls. When
+ * `recordUri` is given, also links straight to that specific record on pdsls.
+ */
+export function DidLinks({ did, handle, recordUri }: { did: string; handle?: string; recordUri?: string }) {
   return (
     <div className="flex items-center gap-1">
       <a href={`https://bsky.app/profile/${handle ?? did}`} target="_blank" rel="noreferrer" className={linkCls}>
@@ -33,6 +36,11 @@ export function DidLinks({ did, handle }: { did: string; handle?: string }) {
       <a href={`https://pdsls.dev/at://${did}`} target="_blank" rel="noreferrer" className={linkCls}>
         Repo <ExternalLink className="size-3" />
       </a>
+      {recordUri && (
+        <a href={`https://pdsls.dev/${recordUri}`} target="_blank" rel="noreferrer" className={linkCls}>
+          Record <ExternalLink className="size-3" />
+        </a>
+      )}
     </div>
   );
 }
