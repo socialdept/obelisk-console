@@ -1,3 +1,4 @@
+import { CreateWebhookDialog } from "@/components/create-webhook-dialog";
 import { Empty, ErrorNote, NeedsToken, PageHeader } from "@/components/manage-ui";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,12 +30,15 @@ export default async function WebhooksPage() {
 
   return (
     <div className="space-y-6">
-      {header}
+      <div className="flex items-start justify-between gap-4">
+        {header}
+        <CreateWebhookDialog />
+      </div>
       {error && <ErrorNote message={error} />}
       <Card>
         <CardContent className="py-4">
           {hooks.length === 0 ? (
-            <Empty>No webhook subscriptions. Create them via the archive API.</Empty>
+            <Empty>No webhook subscriptions yet — create one above.</Empty>
           ) : (
             <Table>
               <TableHeader>

@@ -149,6 +149,20 @@ export const getAudiences = () => svcQuery<{ audiences: Audience[] }>("getAudien
 export const getFootprint = (did: string, includeDeleted = false) =>
   svcQuery<Footprint>("getFootprint", { did, includeDeleted: includeDeleted ? 1 : undefined });
 
+export interface CreateWebhookInput {
+  name: string;
+  url: string;
+  collections?: string[];
+  actions?: string[];
+  record_matchers?: Record<string, string>;
+  include_record?: boolean;
+  max_events?: number;
+  max_wait_ms?: number;
+  from_cursor?: number | "start";
+}
+export const createWebhook = (b: CreateWebhookInput) =>
+  svcProcedure<{ webhook: Webhook & { secret: string } }>("createWebhook", b);
+
 // procedures
 export const addBlockedDid = (b: { did: string; note?: string; purge?: boolean; force?: boolean }) =>
   svcProcedure("addBlockedDid", b);
