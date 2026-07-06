@@ -33,18 +33,19 @@ export default async function StatsPage() {
 
   if (!hasToken()) return shell(<NeedsToken />);
 
-  const [byCollection, byDid, byDay, types, coldTotal] = await Promise.all([
+  const [byCollection, byDid, byDay, types, coldGroups] = await Promise.all([
     safe(aggregate({ groupBy: "collection" }).then((r) => r.groups ?? []), [] as AggregateGroup[]),
     safe(aggregate({ groupBy: "did", limit: 10 }).then((r) => r.groups ?? []), [] as AggregateGroup[]),
     safe(aggregate({ source: "events", groupBy: "createdAt:day" }).then((r) => r.groups ?? []), [] as AggregateGroup[]),
     safe(getTypes().then((r) => r.types ?? []), [] as TypeEntry[]),
     safe(
-      aggregate({ groupBy: "collection", where: { cold: { eq: true } } }).then((r) =>
-        (r.groups ?? []).reduce((s, g) => s + g.count, 0),
-      ),
-      0,
+      aggregate({ groupBy: "collection", where: { cold: { eq: true } } }).then((r) => r.groups ?? []),
+      [] as AggregateGroup[],
     ),
   ]);
+
+  const coldByCol = new Map(coldGroups.map((g) => [g.key.collection, g.count]));
+  const coldTotal = coldGroups.reduce((s, g) => s + g.count, 0);
 
   const profiles = await safe(getProfiles(byDid.map((g) => g.key.did).filter(Boolean)), {} as Record<string, Profile>);
   const total = byCollection.reduce((s, g) => s + g.count, 0);
@@ -66,7 +67,19 @@ export default async function StatsPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Records by collection</CardTitle>
+            <div className="flex items-center justify-between gap-4">
+              <CardTitle className="text-sm font-medium">Records by collection</CardTitle>
+              {coldTotal > 0 && (
+                <div className="text-muted-foreground flex items-center gap-3 text-xs">
+                  <span className="flex items-center gap-1.5">
+                    <span className="bg-primary size-2 rounded-full" /> hot
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="size-2 rounded-full bg-sky-400" /> cold
+                  </span>
+                </div>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-2">
             {byCollection.length === 0 ? (
@@ -75,17 +88,25 @@ export default async function StatsPage() {
               byCollection
                 .slice()
                 .sort((a, b) => b.count - a.count)
-                .map((g) => (
-                  <div key={g.key.collection} className="space-y-1">
-                    <div className="flex justify-between text-xs">
-                      <span className="font-mono">{g.key.collection}</span>
-                      <span className="tabular-nums">{num(g.count)}</span>
+                .map((g) => {
+                  const cold = coldByCol.get(g.key.collection) ?? 0;
+                  const hot = Math.max(0, g.count - cold);
+                  return (
+                    <div key={g.key.collection} className="space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span className="font-mono">{g.key.collection}</span>
+                        <span className="tabular-nums">
+                          {num(g.count)}
+                          {cold > 0 && <span className="text-muted-foreground"> · {num(cold)} cold</span>}
+                        </span>
+                      </div>
+                      <div className="bg-muted flex h-1.5 w-full overflow-hidden rounded-full">
+                        <div className="bg-primary h-full" style={{ width: `${(hot / maxCol) * 100}%` }} />
+                        <div className="h-full bg-sky-400" style={{ width: `${(cold / maxCol) * 100}%` }} />
+                      </div>
                     </div>
-                    <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
-                      <div className="bg-primary h-full rounded-full" style={{ width: `${(g.count / maxCol) * 100}%` }} />
-                    </div>
-                  </div>
-                ))
+                  );
+                })
             )}
           </CardContent>
         </Card>
